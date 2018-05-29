@@ -1,0 +1,39 @@
+<LoadGeneraor>
+    <connection>
+        <Server>127.0.0.1</Server>
+        <port>8080</port>
+    </connection>
+
+    <!--The destination where data will be injected into-->
+    <Target>
+        <type>postgres</type>
+        <UserInfo>
+            <username>jlin6</username>
+            <passwd>1234</passwd>
+        </UserInfo>
+    </Target>
+
+    <dataSrouces>
+
+        <dataSource>
+            <format>GENERATE</format>
+            <fileNum>10</fileNum>
+            <totalSize>1MB</totalSize>
+            <sizeDistribution>random
+            </sizeDistribution> <!--random: files have a random size; even:files have same size-->
+        </dataSource>
+
+        <dataSource>
+            <!-- JSON/PLAIN/GENERATE-->
+            <format>JSON</format>
+            <path></path>
+        </dataSource>
+
+        <!--Timer will assign a starting time for batch of write operations. The starting time is relative to the moment that all LoadGenerators are ready to work-->
+        <timer>
+            <!--If no size unit is specified, then it is batched by the number of files-->
+            <batch>10</batch>
+            <interval>300ms</interval>
+        </timer>
+    </dataSrouces>
+</LoadGeneraor>

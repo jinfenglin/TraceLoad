@@ -1,0 +1,20 @@
+{
+  "tables": [
+    {
+      "tableName": "",
+      "rows": [
+        {
+          "rowContent": {
+            "col1": "foo",
+            "col2": "bar"
+          },
+          "updateTime": ""
+        },
+        {
+          "name": "foo",
+          "content": "bar"
+        }
+      ]
+    }
+  ]
+}
