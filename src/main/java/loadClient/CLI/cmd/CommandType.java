@@ -1,4 +1,4 @@
-package LoadController.CLI.cmd;
+package loadClient.CLI.cmd;
 
 /**
  *

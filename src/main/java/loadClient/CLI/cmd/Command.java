@@ -1,6 +1,7 @@
-package LoadController.CLI.cmd;
+package loadClient.CLI.cmd;
 
 import org.apache.commons.cli.*;
+import loadClient.loadController.LoadController;
 
 
 public abstract class Command {
@@ -19,5 +20,5 @@ public abstract class Command {
         return cmdLine;
     }
 
-    abstract void execute();
+    public abstract void execute(LoadController loadController);
 }
