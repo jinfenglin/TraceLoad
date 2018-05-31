@@ -18,7 +18,7 @@ public class DataSource {
     private Logger logger;
 
     public enum Format {
-        GENERAL, JSON, PLAIN
+        GENERATE, JSON, PLAIN
     }
 
     public enum SizeDistribution {
@@ -36,20 +36,23 @@ public class DataSource {
             NodeList dataSourceDetailsNodes = dataSourceNode.getChildNodes();
             for (int nodeIndex = 0; nodeIndex < dataSourceDetailsNodes.getLength(); nodeIndex += 1) {
                 Node detailNode = dataSourceDetailsNodes.item(nodeIndex);
+                if(detailNode.getNodeType() != Node.ELEMENT_NODE){
+                    continue;
+                }
                 String name = detailNode.getNodeName();
-                String value = detailNode.getNodeValue();
+                String value = detailNode.getTextContent().trim();
                 switch (name) {
                     case FORMAT:
-                        format = Format.valueOf(value);
+                        format = Format.valueOf(value.toUpperCase());
                         break;
                     case FILE_NUM:
-                        fileNum = Long.valueOf(value);
+                        fileNum = Long.valueOf(value.toUpperCase());
                         break;
                     case TOTAL_SIZE:
                         totalSize = value;
                         break;
                     case SIZE_DISTRIBUTION:
-                        sizeDistribution = SizeDistribution.valueOf(value);
+                        sizeDistribution = SizeDistribution.valueOf(value.toUpperCase());
                         break;
                     default:
                         logger.log(WARNING, String.format("Data Source Config \\'%s\\' is invalid and ignored.", name));

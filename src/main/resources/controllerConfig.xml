@@ -1,30 +1,31 @@
-<LoadGeneraor>
+<?xml version="1.0"?>
+<LoadGenerator>
     <servers>
         <server>
             <IP>127.0.0.1</IP>
             <port>8080</port>
             <!--The destination where data will be injected into-->
-            <Target>
+            <target>
                 <type>postgres</type>
-                <UserInfo>
+                <userInfo>
                     <username>jlin6</username>
                     <passwd>1234</passwd>
-                </UserInfo>
-            </Target>
+                </userInfo>
+            </target>
         </server>
 
         <server>
             <IP>127.0.0.1</IP>
             <port>8081</port>
             <!--The destination where data will be injected into-->
-            <Target>
+            <target>
                 <type>disk</type>
                 <path>G:\Projects\traceLoad</path>
-            </Target>
+            </target>
         </server>
     </servers>
 
-    <dataSrouces>
+    <dataSources>
         <dataSource>
             <format>GENERATE</format>
             <fileNum>10</fileNum>
@@ -45,5 +46,5 @@
             <batch>10</batch>
             <interval>300ms</interval>
         </timer>
-    </dataSrouces>
-</LoadGeneraor>
+    </dataSources>
+</LoadGenerator>

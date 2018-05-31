@@ -19,7 +19,9 @@ import java.util.List;
 public class LoadGeneratorFactory {
     private final String LOAD_GENERATOR_TAG_NAME = "LoadGenerator";
     private final String SERVERS = "servers";
+    private final String SERVER = "server";
     private final String DATA_SOURCES = "dataSources";
+    private final String DATA_SOURCE = "dataSource";
 
     private static LoadGeneratorFactory factory;
 
@@ -33,7 +35,7 @@ public class LoadGeneratorFactory {
         return factory;
     }
 
-    public List<LoadGenerator> getLoadGenerators(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException {
+    public List<LoadGenerator> getLoadGenerators(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException, ConfigurationFormatException {
         File xmlConfigFile = new File(xmlConfigPath);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -54,28 +56,36 @@ public class LoadGeneratorFactory {
      * @param loadGeneratorNode
      * @return
      */
-    private LoadGenerator createLoadGenerator(Element loadGeneratorNode) {
+    private LoadGenerator createLoadGenerator(Element loadGeneratorNode) throws ConfigurationFormatException {
         NodeList serversConfig = loadGeneratorNode.getElementsByTagName(SERVERS);
         NodeList dataSourcesConfig = loadGeneratorNode.getElementsByTagName(DATA_SOURCES);
-        List<Server> servers = getServers(serversConfig);
-        List<DataSource> dataSources = getDataSource(dataSourcesConfig);
+        if (serversConfig.getLength() == 0) {
+            throw new ConfigurationFormatException("servers config is not found");
+        }
+        if (dataSourcesConfig.getLength() == 0) {
+            throw new ConfigurationFormatException("data sources config is not found");
+        }
+        List<Server> servers = getServers((Element) serversConfig.item(0));
+        List<DataSource> dataSources = getDataSource((Element) dataSourcesConfig.item(0));
         return new LoadGenerator(servers, dataSources);
     }
 
-    private List<Server> getServers(NodeList serversConfig) {
+    private List<Server> getServers(Element serversConfig) {
+        NodeList configs = serversConfig.getElementsByTagName(SERVER);
         List<Server> servers = new ArrayList<>();
-        for (int serverIndex = 0; serverIndex < serversConfig.getLength(); serverIndex += 1) {
-            Element serverElement = (Element) serversConfig.item(serverIndex);
+        for (int serverIndex = 0; serverIndex < configs.getLength(); serverIndex += 1) {
+            Element serverElement = (Element) configs.item(serverIndex);
             Server server = new Server(serverElement);
             servers.add(server);
         }
         return servers;
     }
 
-    private List<DataSource> getDataSource(NodeList dataSourceConfigs) {
+    private List<DataSource> getDataSource(Element dataSourceConfigs) {
+        NodeList configs = dataSourceConfigs.getElementsByTagName(DATA_SOURCE);
         List<DataSource> dataSources = new ArrayList<>();
-        for (int sourceIndex = 0; sourceIndex < dataSourceConfigs.getLength(); sourceIndex += 1) {
-            Element sourceElement = (Element) dataSourceConfigs.item(sourceIndex);
+        for (int sourceIndex = 0; sourceIndex < configs.getLength(); sourceIndex += 1) {
+            Element sourceElement = (Element) configs.item(sourceIndex);
             DataSource dataSource = new DataSource(sourceElement);
             dataSources.add(dataSource);
         }

@@ -12,9 +12,9 @@ import java.util.List;
  * this LoadManger can distribute the configurations to the clusters and manage the progress of all the workers.
  */
 public class LoadController {
-    List<String> clusterIPs;
+    List<LoadGenerator> generators;
 
-    private LoadController() {
+    public LoadController() {
 
     }
 
@@ -23,8 +23,11 @@ public class LoadController {
      *
      * @param xmlConfigPath The relative path using the classloader's search path as root
      */
-    public void loadConfig(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException {
-
+    public void loadConfig(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException, ConfigurationFormatException {
+        for (LoadGenerator generator : generators) {
+            generator.close();
+        }
+        generators = LoadGeneratorFactory.getFactory().getLoadGenerators(xmlConfigPath);
     }
 
     public void startLoad() {
