@@ -1,31 +1,66 @@
 package Common;
 
+import loadClient.loadController.Server;
 
-import static Common.ServerStatus.Status.UNKNOWN;
+import java.io.Serializable;
+
+import static Common.ServerStatus.ServerStateType.UNKNOWN;
 
 /**
- * This data structure hold the status of a server
+ * This data structure hold the serverStateType of a server
  */
-public class ServerStatus {
-    public enum Status {
+public class ServerStatus implements Serializable {
+    public enum ServerStateType {
         WAITING, TRANSMITTING, LOADING, ERROR, UNKNOWN
     }
+
     float progress;
     boolean alive;
-    Status status;
+    boolean dataReady;
+    ServerStateType serverStateType;
+
 
     public ServerStatus() {
         progress = 0;
-        status = UNKNOWN;
+        serverStateType = UNKNOWN;
         alive = false;
+        dataReady = false;
     }
 
-    public ServerStatus(float progress, boolean alive, Status status) {
+    public ServerStatus(ServerStatus status) {
+        this.progress = status.getProgress();
+        this.alive = status.isAlive();
+        this.serverStateType = status.serverStateType;
+        this.dataReady = status.dataReady;
+    }
+
+    public boolean isDataReady() {
+        return dataReady;
+    }
+
+    public float getProgress() {
+        return progress;
+    }
+
+    public void setProgress(float progress) {
         this.progress = progress;
-        this.alive = alive;
-        this.status = status;
     }
 
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
+    public ServerStateType getServerStateType() {
+        return serverStateType;
+    }
+
+    public void setServerStateType(ServerStateType serverStateType) {
+        this.serverStateType = serverStateType;
+    }
 }
 
 

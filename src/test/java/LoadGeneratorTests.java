@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class LoadGeneratorTests {
     @Test
-    public void createLoadGenerator() throws IOException, SAXException, ParserConfigurationException, ConfigurationFormatException {
+    public void createLoadGenerator() throws IOException, SAXException, ParserConfigurationException, ConfigurationFormatException, ClassNotFoundException {
         String xmlPath = "src/main/resources/controllerConfig.xml";
         List<LoadGenerator> generatorList = LoadGeneratorFactory.getFactory().getLoadGenerators(xmlPath);
         Assert.assertNotEquals(0, generatorList.size());

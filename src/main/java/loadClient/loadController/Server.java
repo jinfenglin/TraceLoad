@@ -1,10 +1,14 @@
 package loadClient.loadController;
 
-import Common.UserInfo;
+import Common.ServerStatus;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
+import java.io.*;
+import java.net.Socket;
+import java.util.List;
 import java.util.logging.Logger;
+
+import static Common.RequestStrs.*;
 
 /**
  * Server object in the controller side
@@ -15,89 +19,136 @@ public class Server {
     final String PORT = "port";
     final String TARGET = "target";
 
-    String ip, port;
-    Target target;
+    private String ip, port;
+    private Target target;
+    private Socket socket;
+    private ServerStatus status;
 
-    public Server(Element serverElement) {
+    public Server(Element serverElement) throws IOException, ClassNotFoundException {
         logger = Logger.getLogger(getClass().getName());
         ip = serverElement.getElementsByTagName(IP).item(0).getTextContent();
         port = serverElement.getElementsByTagName(PORT).item(0).getTextContent();
         Element targetElement = (Element) serverElement.getElementsByTagName(TARGET).item(0);
         target = new Target(targetElement);
+        status = new ServerStatus();
+        socket = new Socket(getIp(), getPort());
+        setLoadTarget();
+        monitorServerStatus();
     }
+
+    private void monitorServerStatus() throws IOException, ClassNotFoundException {
+        Thread statusMonitorDaemon = new Thread(new ServerStatusMonitor(socket, status));
+        statusMonitorDaemon.setDaemon(true);
+        statusMonitorDaemon.start();
+    }
+
+    private void sendRequest(String request) throws IOException {
+        DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        outputStream.writeUTF(request);
+    }
+
+    public void setLoadTarget() throws IOException {
+        sendRequest(SET_TARGET_REQ);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+        objectOutputStream.writeObject(target);
+    }
+
+    public void startLoad() throws IOException {
+        sendRequest(START_LOAD_REQ);
+    }
+
+    public void stopLoad() throws IOException {
+        sendRequest(STOP_LOAD_REQ);
+    }
+
+    public void clean() throws IOException {
+        sendRequest(CLEAN_REQ);
+    }
+
+    public void transferData(List<DataSource> dataSources) throws IOException {
+        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+        byte[] buffer = new byte[256];
+        for (DataSource dataSource : dataSources) {
+            for (File file : dataSource.getFiles()) {
+                String fileName = file.getName();
+                long fileSize = file.length();
+                InputStream stream = new FileInputStream(file);
+                dos.writeUTF(fileName);
+                dos.writeLong(fileSize);
+                int readSize = 0;
+                while (fileSize > 0 && (readSize = stream.read(buffer, 0, (int) Math.min(buffer.length, fileSize))) != -1) {
+                    dos.write(buffer, 0, readSize);
+                    fileSize -= readSize;
+                }
+            }
+        }
+    }
+
+    public void close() throws IOException {
+        socket.close();
+    }
+
 
     public String getIp() {
         return ip;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
+    public int getPort() {
+        return Integer.valueOf(port);
     }
 
     public Target getTarget() {
         return target;
     }
 
-    public void setTarget(Target target) {
-        this.target = target;
+    public ServerStatus getStatus() {
+        synchronized (status) {
+            return new ServerStatus(status);
+        }
     }
 }
 
-class Target {
-    enum Type {
-        DISK, POSTGRES, NEO4J
+class ServerStatusMonitor implements Runnable {
+    private ObjectInputStream inputStream;
+    private ServerStatus status;
+    private Socket socket;
+
+    public ServerStatusMonitor(Socket socket, ServerStatus status) throws IOException {
+        this.socket = socket;
+        this.status = status;
     }
 
-    final String TYPE = "type";
-    final String USER_INFO = "userInfo";
-    final String PATH = "path";
-
-    private Type targetType;
-    private UserInfo userInfo;
-    String path;
-
-    public Target(Element targetElement) {
-        String typeStr = targetElement.getElementsByTagName(TYPE).item(0).getTextContent().toUpperCase();
-        NodeList userInfoBlock = targetElement.getElementsByTagName(USER_INFO);
-        NodeList pathBlock = targetElement.getElementsByTagName(PATH);
-        targetType = Type.valueOf(typeStr);
-        if (userInfoBlock.getLength() > 0) {
-            userInfo = new UserInfo((Element) userInfoBlock.item(0));
-        }
-        if (pathBlock.getLength() > 0) {
-            path = pathBlock.item(0).getTextContent();
-        }
-    }
-
-    public Type getTargetType() {
-        return targetType;
-    }
-
-    public void setTargetType(Type targetType) {
-        this.targetType = targetType;
-    }
-
-    public UserInfo getUserInfo() {
-        return userInfo;
-    }
-
-    public void setUserInfo(UserInfo userInfo) {
-        this.userInfo = userInfo;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
+    @Override
+    public void run() {
+        Object readObj = null;
+        /**try {
+         this.inputStream = new ObjectInputStream(socket.getInputStream());
+         while (true) {
+         if (socket.isClosed())
+         return;
+         ServerStatus tmpStatus = null;
+         while ((readObj = inputStream.readObject()) != null) {
+         tmpStatus = (ServerStatus) readObj;
+         }
+         synchronized (status) {
+         if (tmpStatus == null) {
+         status.setAlive(false);
+         status.setServerStateType(ServerStatus.ServerStateType.UNKNOWN);
+         } else {
+         status.setAlive(tmpStatus.isAlive());
+         status.setProgress(tmpStatus.getProgress());
+         status.setServerStateType(tmpStatus.getServerStateType());
+         }
+         }
+         Thread.sleep(10000);
+         }
+         } catch (IOException e) {
+         e.printStackTrace();
+         } catch (ClassNotFoundException e) {
+         e.printStackTrace();
+         } catch (InterruptedException e) {
+         e.printStackTrace();
+         }**/
     }
 }
+

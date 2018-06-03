@@ -4,7 +4,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
+
 import static java.util.logging.Level.WARNING;
 
 /**
@@ -15,6 +22,7 @@ public class DataSource {
     private final String FILE_NUM = "fileNum";
     private final String TOTAL_SIZE = "totalSize";
     private final String SIZE_DISTRIBUTION = "sizeDistribution";
+    private final String PATH = "path";
     private Logger logger;
 
     public enum Format {
@@ -28,15 +36,19 @@ public class DataSource {
     private Format format;
     private long fileNum;
     private String totalSize;
+    private String path;
     private SizeDistribution sizeDistribution;
+    List<File> files;
 
-    public DataSource(Element dataSourceNode) {
+
+    public DataSource(Element dataSourceNode) throws IOException {
         logger = Logger.getLogger(getClass().getName());
+        files = new ArrayList<>();
         if (dataSourceNode.hasChildNodes()) {
             NodeList dataSourceDetailsNodes = dataSourceNode.getChildNodes();
             for (int nodeIndex = 0; nodeIndex < dataSourceDetailsNodes.getLength(); nodeIndex += 1) {
                 Node detailNode = dataSourceDetailsNodes.item(nodeIndex);
-                if(detailNode.getNodeType() != Node.ELEMENT_NODE){
+                if (detailNode.getNodeType() != Node.ELEMENT_NODE) {
                     continue;
                 }
                 String name = detailNode.getNodeName();
@@ -54,11 +66,43 @@ public class DataSource {
                     case SIZE_DISTRIBUTION:
                         sizeDistribution = SizeDistribution.valueOf(value.toUpperCase());
                         break;
+                    case PATH:
+                        path = value;
+                        break;
                     default:
                         logger.log(WARNING, String.format("Data Source Config \\'%s\\' is invalid and ignored.", name));
                 }
             }
         }
+        createFileStreams();
+    }
+
+    private void createFileStreams() throws IOException {
+        switch (format) {
+            case JSON:
+                files = createJsonFileStream();
+                break;
+            case PLAIN:
+                break;
+            case GENERATE:
+                break;
+        }
+    }
+
+    private List<File> createJsonFileStream() throws IOException {
+        File dir = new File(this.path);
+        List<File> files = new ArrayList<>();
+        if (dir.isDirectory()) {
+            Files.walk(Paths.get(path)).filter(Files::isRegularFile).forEach(fp -> files.add(new File(fp.toUri().getPath())));
+        } else if (dir.isFile()) {
+            logger.warning(String.format("Path %s is a file not a directory.", dir.getPath()));
+            files.add(dir);
+        }
+        return files;
+    }
+
+    public List<File> getFiles() {
+        return files;
     }
 
     public Format getFormat() {

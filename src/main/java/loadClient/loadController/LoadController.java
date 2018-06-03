@@ -5,6 +5,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ public class LoadController {
     List<LoadGenerator> generators;
 
     public LoadController() {
-
+        generators = new ArrayList<>();
     }
 
     /**
@@ -23,19 +24,27 @@ public class LoadController {
      *
      * @param xmlConfigPath The relative path using the classloader's search path as root
      */
-    public void loadConfig(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException, ConfigurationFormatException {
+    public void loadConfig(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException, ConfigurationFormatException, ClassNotFoundException {
         for (LoadGenerator generator : generators) {
             generator.close();
         }
         generators = LoadGeneratorFactory.getFactory().getLoadGenerators(xmlConfigPath);
     }
 
-    public void startLoad() {
-
+    public void startLoad() throws IOException, InterruptedException {
+        for (LoadGenerator generator : generators) {
+            generator.startLoad();
+        }
     }
 
-    public ServerStatus showServersStatus() {
-        return new ServerStatus();
+    public List<ServerStatus> showServersStatus() {
+        List<ServerStatus> statuses = new ArrayList<>();
+        for (LoadGenerator loadGenerator : generators) {
+            for (Server server : loadGenerator.servers) {
+                statuses.add(server.getStatus());
+            }
+        }
+        return statuses;
     }
 
 }

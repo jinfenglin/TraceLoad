@@ -24,7 +24,7 @@ public class CommandFactory {
     public Command toCommand(String commandLineStr) {
         String[] commandArgs = commandLineStr.split(" ");
         String operator = commandArgs[0];
-        CommandType cmdType = CommandType.valueOf(operator);
+        CommandType cmdType = CommandType.valueOf(operator.toUpperCase());
         Command cmd = null;
         switch (cmdType) {
             case CLEAN:
@@ -36,6 +36,8 @@ public class CommandFactory {
             case RELOAD:
                 cmd = new ReloadConfigCmd(commandLineStr);
                 break;
+            case STOP:
+                cmd = new StopCmd(commandLineStr);
         }
         return cmd;
     }

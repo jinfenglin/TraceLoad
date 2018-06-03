@@ -6,7 +6,8 @@ package loadClient.CLI.cmd;
 public enum CommandType {
     START("start"),
     RELOAD("reload"),
-    CLEAN("clean");
+    CLEAN("clean"),
+    STOP("stop");
 
     private String commandType;
 

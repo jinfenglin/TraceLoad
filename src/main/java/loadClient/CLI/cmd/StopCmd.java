@@ -9,9 +9,8 @@ import java.io.IOException;
 /**
  *
  */
-public class StartCmd extends Command {
-
-    public StartCmd(String commandStr) {
+public class StopCmd extends Command {
+    public StopCmd(String commandStr) {
         super(commandStr);
     }
 
@@ -19,13 +18,9 @@ public class StartCmd extends Command {
     public void execute(LoadController loadController) {
         try {
             CommandLine commandLine = parserCommandLine(this.commandStr, this.options);
-            loadController.startLoad();
         } catch (ParseException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
     }
 }

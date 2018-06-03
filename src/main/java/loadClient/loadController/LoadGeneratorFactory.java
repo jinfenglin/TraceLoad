@@ -35,7 +35,7 @@ public class LoadGeneratorFactory {
         return factory;
     }
 
-    public List<LoadGenerator> getLoadGenerators(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException, ConfigurationFormatException {
+    public List<LoadGenerator> getLoadGenerators(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException, ConfigurationFormatException, ClassNotFoundException {
         File xmlConfigFile = new File(xmlConfigPath);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -56,7 +56,7 @@ public class LoadGeneratorFactory {
      * @param loadGeneratorNode
      * @return
      */
-    private LoadGenerator createLoadGenerator(Element loadGeneratorNode) throws ConfigurationFormatException {
+    private LoadGenerator createLoadGenerator(Element loadGeneratorNode) throws ConfigurationFormatException, IOException, ClassNotFoundException {
         NodeList serversConfig = loadGeneratorNode.getElementsByTagName(SERVERS);
         NodeList dataSourcesConfig = loadGeneratorNode.getElementsByTagName(DATA_SOURCES);
         if (serversConfig.getLength() == 0) {
@@ -70,7 +70,7 @@ public class LoadGeneratorFactory {
         return new LoadGenerator(servers, dataSources);
     }
 
-    private List<Server> getServers(Element serversConfig) {
+    private List<Server> getServers(Element serversConfig) throws IOException, ClassNotFoundException {
         NodeList configs = serversConfig.getElementsByTagName(SERVER);
         List<Server> servers = new ArrayList<>();
         for (int serverIndex = 0; serverIndex < configs.getLength(); serverIndex += 1) {
@@ -81,7 +81,7 @@ public class LoadGeneratorFactory {
         return servers;
     }
 
-    private List<DataSource> getDataSource(Element dataSourceConfigs) {
+    private List<DataSource> getDataSource(Element dataSourceConfigs) throws IOException {
         NodeList configs = dataSourceConfigs.getElementsByTagName(DATA_SOURCE);
         List<DataSource> dataSources = new ArrayList<>();
         for (int sourceIndex = 0; sourceIndex < configs.getLength(); sourceIndex += 1) {
