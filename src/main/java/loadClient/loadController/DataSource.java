@@ -76,13 +76,13 @@ public class DataSource {
                 }
             }
         }
-        createOpeartionAndFiles();
+        createOperationsAndFiles();
     }
 
-    private void createOpeartionAndFiles() throws IOException {
+    private void createOperationsAndFiles() throws IOException {
         switch (format) {
             case JSON:
-                files = createJsonFiles();
+                processJsonFiles();
                 break;
             case PLAIN:
                 break;
@@ -91,7 +91,16 @@ public class DataSource {
         }
     }
 
-    private List<File> createJsonFiles() throws IOException {
+
+    //TODO Redo the design of event input and formatting. Thinking about using Json as only input format.
+    // Convert DataGenerator and plan text into a single (maybe large) Json file. Transfer that JSON file to load server,
+    //each Json file represent 1 task and assign a unique id for reuse. The event in the JSON should have an issue timestamp/time point,
+    //To process the large JSON file on the load server, use a stream to read it gradually and fire operations on the storage media.
+
+    /**
+     * All plain text files will be matched with CREATE operation
+     */
+    private void processPlainTextFiles() throws IOException {
         File dir = new File(this.path);
         List<File> files = new ArrayList<>();
         if (dir.isDirectory()) {
@@ -100,7 +109,21 @@ public class DataSource {
             logger.warning(String.format("Path %s is a file not a directory.", dir.getPath()));
             files.add(dir);
         }
-        return files;
+        this.files = files;
+        for (File file : files) {
+            LoadOperation op = new LoadOperation(LoadOperation.Operation.CREATE, file.getName());
+            this.loadOperations.add(op);
+        }
+    }
+
+    /**
+     * Build files and
+     *
+     * @return
+     * @throws IOException
+     */
+    private List<File> processJsonFiles() throws IOException {
+
     }
 
     public List<File> getFiles() {

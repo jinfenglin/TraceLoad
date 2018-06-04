@@ -5,7 +5,7 @@ package Common;
  */
 public class LoadOperation {
     public enum Operation {
-        CREATE, DELETE, UPDATE
+        CREATE, DELETE, READ, UPDATE
     }
 
     Operation operation;
