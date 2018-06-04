@@ -10,6 +10,7 @@ import static Common.ServerStatus.ServerStateType.UNKNOWN;
  * This data structure hold the serverStateType of a server
  */
 public class ServerStatus implements Serializable {
+
     public enum ServerStateType {
         WAITING, TRANSMITTING, LOADING, ERROR, UNKNOWN
     }
@@ -56,6 +57,10 @@ public class ServerStatus implements Serializable {
 
     public ServerStateType getServerStateType() {
         return serverStateType;
+    }
+
+    public void setDataReady(boolean dataReady) {
+        this.dataReady = dataReady;
     }
 
     public void setServerStateType(ServerStateType serverStateType) {

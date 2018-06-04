@@ -8,4 +8,6 @@ public class RequestStrs {
     public static final String STOP_LOAD_REQ = "stop_load_request";
     public static final String CLEAN_REQ = "clean_request";
     public static final String SET_TARGET_REQ = "set_target_request";
+    public static final String TRANS_FILE = "trans_data";
+    public static final String TRANS_TIME_INDEX = "trans_time_index";
 }

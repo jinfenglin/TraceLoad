@@ -1,11 +1,22 @@
 package loadServer.TargetAdaptors;
 
+import loadClient.loadController.Target;
+
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  *
  */
-public class DiskAdaptor implements TargetAdaptor{
+public class DiskAdaptor implements TargetAdaptor {
+    public DiskAdaptor(Target target) {
+        assert target.getTargetType() == Target.Type.DISK;
+        String path = target.getPath();
+        File file = new File(path);
+        file.mkdirs();
+    }
+
     @Override
     public void create(String id, File file) {
 

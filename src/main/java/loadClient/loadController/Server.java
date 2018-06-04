@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 import java.io.*;
 import java.net.Socket;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.logging.Logger;
 
 import static Common.RequestStrs.*;
@@ -43,7 +44,7 @@ public class Server {
     }
 
     private void sendRequest(String request) throws IOException {
-        DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
         outputStream.writeUTF(request);
     }
 
@@ -65,11 +66,19 @@ public class Server {
         sendRequest(CLEAN_REQ);
     }
 
+    public void transferTimeIndex(SortedMap timeIndex) throws IOException {
+        sendRequest(TRANS_TIME_INDEX);
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+        objectOutputStream.writeObject(timeIndex);
+
+    }
+
     public void transferData(List<DataSource> dataSources) throws IOException {
         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
         byte[] buffer = new byte[256];
         for (DataSource dataSource : dataSources) {
             for (File file : dataSource.getFiles()) {
+                sendRequest(TRANS_FILE);
                 String fileName = file.getName();
                 long fileSize = file.length();
                 InputStream stream = new FileInputStream(file);
@@ -87,7 +96,6 @@ public class Server {
     public void close() throws IOException {
         socket.close();
     }
-
 
     public String getIp() {
         return ip;
@@ -120,35 +128,28 @@ class ServerStatusMonitor implements Runnable {
 
     @Override
     public void run() {
-        Object readObj = null;
-        /**try {
-         this.inputStream = new ObjectInputStream(socket.getInputStream());
-         while (true) {
-         if (socket.isClosed())
-         return;
-         ServerStatus tmpStatus = null;
-         while ((readObj = inputStream.readObject()) != null) {
-         tmpStatus = (ServerStatus) readObj;
-         }
-         synchronized (status) {
-         if (tmpStatus == null) {
-         status.setAlive(false);
-         status.setServerStateType(ServerStatus.ServerStateType.UNKNOWN);
-         } else {
-         status.setAlive(tmpStatus.isAlive());
-         status.setProgress(tmpStatus.getProgress());
-         status.setServerStateType(tmpStatus.getServerStateType());
-         }
-         }
-         Thread.sleep(10000);
-         }
-         } catch (IOException e) {
-         e.printStackTrace();
-         } catch (ClassNotFoundException e) {
-         e.printStackTrace();
-         } catch (InterruptedException e) {
-         e.printStackTrace();
-         }**/
+        try {
+            this.inputStream = new ObjectInputStream(socket.getInputStream());
+            while (true) {
+                if (socket.isClosed())
+                    return;
+                ServerStatus tmpStatus = (ServerStatus) inputStream.readObject();
+                synchronized (status) {
+                    if (tmpStatus == null) {
+                        status.setAlive(false);
+                        status.setServerStateType(ServerStatus.ServerStateType.UNKNOWN);
+                    } else {
+                        status.setAlive(tmpStatus.isAlive());
+                        status.setProgress(tmpStatus.getProgress());
+                        status.setServerStateType(tmpStatus.getServerStateType());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
 

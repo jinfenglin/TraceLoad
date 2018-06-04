@@ -41,10 +41,11 @@
         </dataSource>
 
         <!--Timer will assign a starting time for batch of write operations. The starting time is relative to the moment that all LoadGenerators are ready to work-->
-        <timer>
-            <!--If no size unit is specified, then it is batched by the number of files-->
-            <batch>10</batch>
-            <interval>300ms</interval>
-        </timer>
     </dataSources>
+
+    <timer>
+        <!--If no size unit is specified, then it is batched by the number of files-->
+        <batch>10</batch>
+        <interval>3000ms</interval>
+    </timer>
 </LoadGenerator>

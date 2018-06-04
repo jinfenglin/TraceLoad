@@ -7,18 +7,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- *
- */
 public class LoadGenerator {
     List<DataSource> dataSources;
     List<Server> servers;
     Logger logger;
+    LoadTimer loadTimer;
 
-    public LoadGenerator(List<Server> servers, List<DataSource> dataSources) {
+    public LoadGenerator(List<Server> servers, List<DataSource> dataSources, LoadTimer timer) {
         this.dataSources = dataSources;
         this.servers = servers;
         this.logger = Logger.getLogger(this.getClass().getName());
+        this.loadTimer = timer;
     }
 
     public void transfer(List<DataSource> dataSources) throws InterruptedException {
@@ -63,6 +62,13 @@ public class LoadGenerator {
     private void loadDataToTarget() throws IOException {
         for (Server server : servers) {
             server.startLoad();
+        }
+    }
+
+    public void setTimeIndex() throws IOException {
+        List<FilesAtMoment> timeIndex = loadTimer.getTimeIndex(dataSources);
+        for (Server server : servers) {
+            server.transferTimeIndex(timeIndex);
         }
     }
 

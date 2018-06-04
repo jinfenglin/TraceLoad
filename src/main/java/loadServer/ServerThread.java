@@ -1,5 +1,6 @@
 package loadServer;
 
+import Common.ServerStatus;
 import loadClient.loadController.Target;
 
 import java.io.*;
@@ -15,21 +16,30 @@ public class ServerThread implements Runnable {
     Logger logger;
     Socket socket;
     Target loadTarget;
+    File filePathDir;
+    ServerStatus status;
 
-    public ServerThread(Socket socket) {
+    public ServerThread(Socket socket, File filePathDir) {
         this.socket = socket;
         logger = Logger.getLogger(getClass().getName());
+        this.filePathDir = filePathDir;
+        status = new ServerStatus();
     }
 
-    private void receiveData(String fileName, DataInputStream inputStream) throws IOException {
+    private void receiveData(DataInputStream inputStream) throws IOException {
+        String fileName = inputStream.readUTF();
         long size = inputStream.readLong();
         int bufSize = 256;
         byte[] buff = new byte[bufSize];
         int readSize = 0;
+
+        File writeFile = new File(filePathDir, fileName);
+        FileOutputStream fos = new FileOutputStream(writeFile);
         while (size > 0 && (readSize = inputStream.read(buff, 0, (int) Math.min(buff.length, size))) != -1) {
-            logger.info("Trans file ...");
+            fos.write(buff);
             size -= readSize;
         }
+        fos.close();
     }
 
     private void setTarget(InputStream inputStream) throws IOException, ClassNotFoundException {
@@ -47,11 +57,11 @@ public class ServerThread implements Runnable {
         }
         while (true) {
             try {
-                if (socket.isClosed())
+                if (socket.isClosed() || socket.isInputShutdown())
                     break;
-                String command = inputStream.readUTF();
-                logger.info(String.format("Receive request %s", command));
-                switch (command) {
+                String request = inputStream.readUTF();
+                logger.info(String.format("Receive request %s", request));
+                switch (request) {
                     case SET_TARGET_REQ:
                         setTarget(inputStream);
                         break;
@@ -61,9 +71,11 @@ public class ServerThread implements Runnable {
                         break;
                     case CLEAN_REQ:
                         break;
+                    case TRANS_FILE:
+                        receiveData(inputStream);
                     default:
-                        //If no command matched, regard it as data transfer
-                        receiveData(command, inputStream);
+                        logger.info(String.format("Request %s is not valid, ignore this request", request));
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();

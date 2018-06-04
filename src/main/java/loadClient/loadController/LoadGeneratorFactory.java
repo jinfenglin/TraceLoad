@@ -22,6 +22,7 @@ public class LoadGeneratorFactory {
     private final String SERVER = "server";
     private final String DATA_SOURCES = "dataSources";
     private final String DATA_SOURCE = "dataSource";
+    private final String TIMER = "timer";
 
     private static LoadGeneratorFactory factory;
 
@@ -59,15 +60,20 @@ public class LoadGeneratorFactory {
     private LoadGenerator createLoadGenerator(Element loadGeneratorNode) throws ConfigurationFormatException, IOException, ClassNotFoundException {
         NodeList serversConfig = loadGeneratorNode.getElementsByTagName(SERVERS);
         NodeList dataSourcesConfig = loadGeneratorNode.getElementsByTagName(DATA_SOURCES);
+        NodeList timerConfig = loadGeneratorNode.getElementsByTagName(TIMER);
         if (serversConfig.getLength() == 0) {
             throw new ConfigurationFormatException("servers config is not found");
         }
         if (dataSourcesConfig.getLength() == 0) {
             throw new ConfigurationFormatException("data sources config is not found");
         }
+        if (timerConfig.getLength() == 0) {
+            throw new ConfigurationFormatException("timer config is not found");
+        }
         List<Server> servers = getServers((Element) serversConfig.item(0));
         List<DataSource> dataSources = getDataSource((Element) dataSourcesConfig.item(0));
-        return new LoadGenerator(servers, dataSources);
+        LoadTimer timer = new LoadTimer((Element) timerConfig.item(0));
+        return new LoadGenerator(servers, dataSources, timer);
     }
 
     private List<Server> getServers(Element serversConfig) throws IOException, ClassNotFoundException {
@@ -91,5 +97,4 @@ public class LoadGeneratorFactory {
         }
         return dataSources;
     }
-
 }

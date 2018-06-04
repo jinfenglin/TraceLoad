@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * This file hold the configuration for the server object.
  */
-public class ServerFlatConfig {
+public class ServerConfig {
     private Map<String, String> properties;
 
     /**
@@ -19,7 +19,7 @@ public class ServerFlatConfig {
      *
      * @param resourceName
      */
-    public ServerFlatConfig(String resourceName) {
+    public ServerConfig(String resourceName) {
         readConfig(resourceName);
     }
 

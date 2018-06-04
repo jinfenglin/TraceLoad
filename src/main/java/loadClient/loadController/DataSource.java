@@ -1,5 +1,6 @@
 package loadClient.loadController;
 
+import Common.LoadOperation;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -39,6 +40,7 @@ public class DataSource {
     private String path;
     private SizeDistribution sizeDistribution;
     List<File> files;
+    List<LoadOperation> loadOperations;
 
 
     public DataSource(Element dataSourceNode) throws IOException {
@@ -74,13 +76,13 @@ public class DataSource {
                 }
             }
         }
-        createFileStreams();
+        createOpeartionAndFiles();
     }
 
-    private void createFileStreams() throws IOException {
+    private void createOpeartionAndFiles() throws IOException {
         switch (format) {
             case JSON:
-                files = createJsonFileStream();
+                files = createJsonFiles();
                 break;
             case PLAIN:
                 break;
@@ -89,7 +91,7 @@ public class DataSource {
         }
     }
 
-    private List<File> createJsonFileStream() throws IOException {
+    private List<File> createJsonFiles() throws IOException {
         File dir = new File(this.path);
         List<File> files = new ArrayList<>();
         if (dir.isDirectory()) {

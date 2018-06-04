@@ -4,11 +4,13 @@ import Common.UserInfo;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.io.Serializable;
+
 /**
  *
  */
-public class Target {
-    enum Type {
+public class Target implements Serializable{
+    public enum Type {
         DISK, POSTGRES, NEO4J
     }
 
