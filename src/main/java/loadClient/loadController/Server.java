@@ -1,11 +1,14 @@
 package loadClient.loadController;
 
 import Common.ServerStatus;
+import com.sun.deploy.trace.Trace;
 import org.w3c.dom.Element;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.SortedMap;
 import java.util.logging.Logger;
 
@@ -142,38 +145,73 @@ public class Server {
 }
 
 class ServerStatusMonitor implements Runnable {
-    private ObjectInputStream inputStream;
+    private Logger logger;
     private ServerStatus status;
     private Socket socket;
 
     public ServerStatusMonitor(Socket socket, ServerStatus status) throws IOException {
         this.socket = socket;
         this.status = status;
+        this.logger = Logger.getLogger(this.getClass().getName());
     }
 
     @Override
     public void run() {
-        try {
-            this.inputStream = new ObjectInputStream(socket.getInputStream());
-            while (true) {
-                if (socket.isClosed())
-                    return;
-                ServerStatus tmpStatus = (ServerStatus) inputStream.readObject();
-                synchronized (status) {
-                    if (tmpStatus == null) {
-                        status.setAlive(false);
-                        status.setServerStateType(ServerStatus.ServerStateType.UNKNOWN);
-                    } else {
-                        status.setAlive(tmpStatus.isAlive());
-                        status.setProgress(tmpStatus.getProgress());
-                        status.setServerStateType(tmpStatus.getServerStateType());
+        logger.info("statusMonitor is activated...");
+        List<ServerStatus> statusQueue = new ArrayList<>();
+
+        Thread statusReceiver = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ObjectInputStream inputStream = null;
+                try {
+                    inputStream = new ObjectInputStream(socket.getInputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                while (true) {
+                    try {
+                        ServerStatus tmpStatus = (ServerStatus) inputStream.readObject();
+                        synchronized (statusQueue) {
+                            statusQueue.add(tmpStatus);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        });
+        statusReceiver.setDaemon(true);
+        statusReceiver.start();
+
+
+        while (true) {
+            if (socket.isClosed())
+                return;
+            synchronized (statusQueue) {
+                if (statusQueue.size() > 0) {
+                    ServerStatus lastStatus = statusQueue.get(statusQueue.size() - 1);
+                    synchronized (status) {
+                        status.setAlive(lastStatus.isAlive());
+                        status.setProgress(lastStatus.getProgress());
+                        status.setServerStateType(lastStatus.getServerStateType());
+                    }
+                    while (statusQueue.size() > 0) {
+                        statusQueue.remove(0);
+                    }
+                } else {
+                    status.setAlive(false);
+                    status.setServerStateType(ServerStatus.ServerStateType.UNKNOWN);
+                }
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

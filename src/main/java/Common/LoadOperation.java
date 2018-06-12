@@ -3,9 +3,10 @@ package Common;
 import java.io.Serializable;
 
 /**
- *
+ * Record one event in the load injection.The time is a long value which indicating how many millionsecs is this event
+ * away from the beginning of the load injection.
  */
-public class LoadOperation implements Serializable{
+public class LoadOperation implements Serializable, Comparable<LoadOperation> {
     private String operationType;
     private String fileName;
     private String content;
@@ -41,5 +42,12 @@ public class LoadOperation implements Serializable{
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    @Override
+    public int compareTo(LoadOperation o) {
+        long time1 = Long.valueOf(getTime());
+        long time2 = Long.valueOf(o.getTime());
+        return Long.compare(time1, time2);
     }
 }

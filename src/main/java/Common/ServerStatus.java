@@ -66,6 +66,16 @@ public class ServerStatus implements Serializable {
     public void setServerStateType(ServerStateType serverStateType) {
         this.serverStateType = serverStateType;
     }
+
+    @Override
+    public String toString() {
+        return "ServerStatus{" +
+                "progress=" + progress +
+                ", alive=" + alive +
+                ", dataReady=" + dataReady +
+                ", serverStateType=" + serverStateType +
+                '}';
+    }
 }
 
 
