@@ -1,20 +1,16 @@
 {
-  "tables": [
+  "operations": [
     {
-      "tableName": "",
-      "rows": [
-        {
-          "rowContent": {
-            "col1": "foo",
-            "col2": "bar"
-          },
-          "updateTime": ""
-        },
-        {
-          "name": "foo",
-          "content": "bar"
-        }
-      ]
+      "fileName": "f1.txt",
+      "operationType":"create",
+      "content":"this is f1",
+      "time": "foo"
+    },
+    {
+      "fileName": "f1.txt",
+      "operationType":"update",
+      "content":"this is not f2",
+      "time":"bar"
     }
   ]
 }

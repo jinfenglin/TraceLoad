@@ -10,6 +10,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class LoadGeneratorFactory {
     private final String DATA_SOURCES = "dataSources";
     private final String DATA_SOURCE = "dataSource";
     private final String TIMER = "timer";
+    private final String TEMP_DIR = "temporaryDir";
 
     private static LoadGeneratorFactory factory;
 
@@ -61,6 +64,11 @@ public class LoadGeneratorFactory {
         NodeList serversConfig = loadGeneratorNode.getElementsByTagName(SERVERS);
         NodeList dataSourcesConfig = loadGeneratorNode.getElementsByTagName(DATA_SOURCES);
         NodeList timerConfig = loadGeneratorNode.getElementsByTagName(TIMER);
+        NodeList tempDirConfig = loadGeneratorNode.getElementsByTagName(TEMP_DIR);
+        String id = loadGeneratorNode.getAttribute("id");
+        if (tempDirConfig.getLength() == 0) {
+            throw new ConfigurationFormatException("temporary directory is not given");
+        }
         if (serversConfig.getLength() == 0) {
             throw new ConfigurationFormatException("servers config is not found");
         }
@@ -70,10 +78,19 @@ public class LoadGeneratorFactory {
         if (timerConfig.getLength() == 0) {
             throw new ConfigurationFormatException("timer config is not found");
         }
+        File tempDir = getTempDir(tempDirConfig.item(0).getTextContent());
         List<Server> servers = getServers((Element) serversConfig.item(0));
         List<DataSource> dataSources = getDataSource((Element) dataSourcesConfig.item(0));
         LoadTimer timer = new LoadTimer((Element) timerConfig.item(0));
-        return new LoadGenerator(servers, dataSources, timer);
+        return new LoadGenerator(id, servers, dataSources, timer, tempDir);
+    }
+
+    private File getTempDir(String directoryPath) {
+        File dir = new File(directoryPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        return dir;
     }
 
     private List<Server> getServers(Element serversConfig) throws IOException, ClassNotFoundException {

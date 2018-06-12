@@ -48,20 +48,40 @@ public class Server {
         outputStream.writeUTF(request);
     }
 
+    /**
+     * Inform the load server to set a target platform
+     *
+     * @throws IOException
+     */
     public void setLoadTarget() throws IOException {
         sendRequest(SET_TARGET_REQ);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
         objectOutputStream.writeObject(target);
     }
 
+    /**
+     * Start a load mission on the load server
+     *
+     * @throws IOException
+     */
     public void startLoad() throws IOException {
         sendRequest(START_LOAD_REQ);
     }
 
+    /**
+     * Stop the load on the load server
+     *
+     * @throws IOException
+     */
     public void stopLoad() throws IOException {
         sendRequest(STOP_LOAD_REQ);
     }
 
+    /**
+     * Clean the target platform where loads have been applied
+     *
+     * @throws IOException
+     */
     public void clean() throws IOException {
         sendRequest(CLEAN_REQ);
     }
@@ -73,25 +93,30 @@ public class Server {
 
     }
 
-    public void transferData(List<DataSource> dataSources) throws IOException {
+    /**
+     * Transfer the files to the load server
+     *
+     * @param files
+     * @throws IOException
+     */
+    public void transferData(List<File> files) throws IOException {
         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
         byte[] buffer = new byte[256];
-        for (DataSource dataSource : dataSources) {
-            for (File file : dataSource.getFiles()) {
-                sendRequest(TRANS_FILE);
-                String fileName = file.getName();
-                long fileSize = file.length();
-                InputStream stream = new FileInputStream(file);
-                dos.writeUTF(fileName);
-                dos.writeLong(fileSize);
-                int readSize = 0;
-                while (fileSize > 0 && (readSize = stream.read(buffer, 0, (int) Math.min(buffer.length, fileSize))) != -1) {
-                    dos.write(buffer, 0, readSize);
-                    fileSize -= readSize;
-                }
+        for (File file : files) {
+            sendRequest(TRANS_FILE);
+            String fileName = file.getName();
+            long fileSize = file.length();
+            InputStream stream = new FileInputStream(file);
+            dos.writeUTF(fileName);
+            dos.writeLong(fileSize);
+            int readSize = 0;
+            while (fileSize > 0 && (readSize = stream.read(buffer, 0, (int) Math.min(buffer.length, fileSize))) != -1) {
+                dos.write(buffer, 0, readSize);
+                fileSize -= readSize;
             }
         }
     }
+
 
     public void close() throws IOException {
         socket.close();

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <LoadGenerator id="test_1">
+    <temporaryDir>G:\Download\test_1</temporaryDir>
     <servers>
         <!--server>
             <IP>127.0.0.1</IP>
@@ -34,17 +35,18 @@
             <sizeDistribution>random</sizeDistribution> <random: files have a random size; even:files have same size>
         </dataSource>-->
 
-        <dataSource>
+        <dataSource id="ds1">
             <!-- JSON/PLAIN/GENERATE-->
             <format>JSON</format>
             <path>G:\Download\trace_test_from</path>
         </dataSource>
 
         <!--Timer will assign a starting time for batch of write operations. The starting time is relative to the moment that all LoadGenerators are ready to work-->
-        <timer>
-            <!--If no size unit is specified, then it is batched by the number of files-->
-            <batch>10</batch>
-            <interval>300ms</interval>
-        </timer>
     </dataSources>
+
+    <timer>
+        <!--If no size unit is specified, then it is batched by the number of files-->
+        <batch>10</batch>
+        <interval>3000</interval>
+    </timer>
 </LoadGenerator>

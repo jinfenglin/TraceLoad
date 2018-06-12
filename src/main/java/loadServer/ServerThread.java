@@ -57,7 +57,7 @@ public class ServerThread implements Runnable {
         }
         while (true) {
             try {
-                if (socket.isClosed() || socket.isInputShutdown())
+                if (!socket.isConnected() || socket.isInputShutdown())
                     break;
                 String request = inputStream.readUTF();
                 logger.info(String.format("Receive request %s", request));
@@ -75,12 +75,13 @@ public class ServerThread implements Runnable {
                         receiveData(inputStream);
                     default:
                         logger.info(String.format("Request %s is not valid, ignore this request", request));
-
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                break;
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
+                break;
             }
         }
         logger.info(String.format("Server thread for %s:%s is finished", socket.getInetAddress().getHostAddress(), socket.getPort()));

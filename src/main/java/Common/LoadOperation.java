@@ -1,43 +1,45 @@
 package Common;
 
+import java.io.Serializable;
+
 /**
  *
  */
-public class LoadOperation {
-    public enum Operation {
-        CREATE, DELETE, READ, UPDATE
+public class LoadOperation implements Serializable{
+    private String operationType;
+    private String fileName;
+    private String content;
+    private String time;
+
+    public String getOperationType() {
+        return operationType;
     }
 
-    Operation operation;
-    String updateContentSourceFile; //Only be used for UPDATE operation
-    String targetFile;
-
-    public LoadOperation(Operation operation, String targetFile) {
-        this.operation = operation;
-        this.targetFile = targetFile;
+    public void setOperationType(String operationType) {
+        this.operationType = operationType;
     }
 
-    public Operation getOperation() {
-        return operation;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setOperation(Operation operation) {
-        this.operation = operation;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
-    public String getUpdateContentSourceFile() {
-        return updateContentSourceFile;
+    public String getContent() {
+        return content;
     }
 
-    public void setUpdateContentSourceFile(String updateContentSourceFile) {
-        this.updateContentSourceFile = updateContentSourceFile;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getTargetFile() {
-        return targetFile;
+    public String getTime() {
+        return time;
     }
 
-    public void setTargetFile(String targetFile) {
-        this.targetFile = targetFile;
+    public void setTime(String time) {
+        this.time = time;
     }
 }

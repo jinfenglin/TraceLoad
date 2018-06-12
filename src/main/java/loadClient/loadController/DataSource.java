@@ -1,15 +1,12 @@
 package loadClient.loadController;
 
-import Common.LoadOperation;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -39,13 +36,13 @@ public class DataSource {
     private String totalSize;
     private String path;
     private SizeDistribution sizeDistribution;
-    List<File> files;
-    List<LoadOperation> loadOperations;
-
+    private List<File> files;
+    private String id;
 
     public DataSource(Element dataSourceNode) throws IOException {
         logger = Logger.getLogger(getClass().getName());
         files = new ArrayList<>();
+        id = dataSourceNode.getAttribute("id");
         if (dataSourceNode.hasChildNodes()) {
             NodeList dataSourceDetailsNodes = dataSourceNode.getChildNodes();
             for (int nodeIndex = 0; nodeIndex < dataSourceDetailsNodes.getLength(); nodeIndex += 1) {
@@ -76,54 +73,20 @@ public class DataSource {
                 }
             }
         }
-        createOperationsAndFiles();
-    }
-
-    private void createOperationsAndFiles() throws IOException {
-        switch (format) {
-            case JSON:
-                processJsonFiles();
-                break;
-            case PLAIN:
-                break;
-            case GENERATE:
-                break;
-        }
-    }
-
-
-    //TODO Redo the design of event input and formatting. Thinking about using Json as only input format.
-    // Convert DataGenerator and plan text into a single (maybe large) Json file. Transfer that JSON file to load server,
-    //each Json file represent 1 task and assign a unique id for reuse. The event in the JSON should have an issue timestamp/time point,
-    //To process the large JSON file on the load server, use a stream to read it gradually and fire operations on the storage media.
-
-    /**
-     * All plain text files will be matched with CREATE operation
-     */
-    private void processPlainTextFiles() throws IOException {
-        File dir = new File(this.path);
-        List<File> files = new ArrayList<>();
-        if (dir.isDirectory()) {
-            Files.walk(Paths.get(path)).filter(Files::isRegularFile).forEach(fp -> files.add(new File(fp.toUri().getPath())));
-        } else if (dir.isFile()) {
-            logger.warning(String.format("Path %s is a file not a directory.", dir.getPath()));
-            files.add(dir);
-        }
-        this.files = files;
-        for (File file : files) {
-            LoadOperation op = new LoadOperation(LoadOperation.Operation.CREATE, file.getName());
-            this.loadOperations.add(op);
-        }
+        prepareFiles();
     }
 
     /**
-     * Build files and
-     *
-     * @return
-     * @throws IOException
+     * Get the list of files of this datasource.
      */
-    private List<File> processJsonFiles() throws IOException {
-
+    private void prepareFiles() {
+        if (format == Format.GENERATE) {
+            //TODO Generate files and put it into the list
+        } else {
+            File dir = new File(path);
+            File[] files = dir.listFiles();
+            this.files = Arrays.asList(files);
+        }
     }
 
     public List<File> getFiles() {
@@ -160,6 +123,10 @@ public class DataSource {
 
     public void setDistribution(SizeDistribution distribution) {
         this.sizeDistribution = distribution;
+    }
+
+    public String getId() {
+        return id;
     }
 }
 

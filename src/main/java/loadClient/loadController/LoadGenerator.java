@@ -2,6 +2,7 @@ package loadClient.loadController;
 
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,15 +13,30 @@ public class LoadGenerator {
     List<Server> servers;
     Logger logger;
     LoadTimer loadTimer;
+    String id;
+    File tempDir;
+    List<File> eventSeqFiles;
 
-    public LoadGenerator(List<Server> servers, List<DataSource> dataSources, LoadTimer timer) {
+    public LoadGenerator(String id, List<Server> servers, List<DataSource> dataSources, LoadTimer timer, File tempDir) throws IOException {
         this.dataSources = dataSources;
         this.servers = servers;
         this.logger = Logger.getLogger(this.getClass().getName());
         this.loadTimer = timer;
+        this.id = id;
+        this.tempDir = tempDir;
+        eventSeqFiles = new ArrayList<>();
+        createEventSequences();
     }
 
-    public void transfer(List<DataSource> dataSources) throws InterruptedException {
+    public void createEventSequences() throws IOException {
+        for (DataSource dataSource : dataSources) {
+            EventSeqMaker eventSeqMaker = new EventSeqMaker(dataSource, loadTimer, tempDir);
+            File eventSeqFile = eventSeqMaker.createEventSequenceFile();
+            eventSeqFiles.add(eventSeqFile);
+        }
+    }
+
+    public void transfer(List<File> files) throws InterruptedException {
         List<Thread> transferThread = new ArrayList<>();
         for (Server server : servers) {
             logger.info(String.format("Data trans thread for server %s is up...", server.getIp()));
@@ -28,7 +44,7 @@ public class LoadGenerator {
                 @Override
                 public void run() {
                     try {
-                        server.transferData(dataSources);
+                        server.transferData(files);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -65,15 +81,8 @@ public class LoadGenerator {
         }
     }
 
-    public void setTimeIndex() throws IOException {
-        List<FilesAtMoment> timeIndex = loadTimer.getTimeIndex(dataSources);
-        for (Server server : servers) {
-            server.transferTimeIndex(timeIndex);
-        }
-    }
-
     public void startLoad() throws InterruptedException, IOException {
-        transfer(dataSources);
+        transfer(eventSeqFiles);
         //waitTillDataReady();
         loadDataToTarget();
     }
