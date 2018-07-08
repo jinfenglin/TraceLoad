@@ -80,7 +80,7 @@ public class LoadGeneratorFactory {
         }
         File tempDir = getTempDir(tempDirConfig.item(0).getTextContent());
         List<Server> servers = getServers((Element) serversConfig.item(0));
-        List<DataSource> dataSources = getDataSource((Element) dataSourcesConfig.item(0));
+        List<DataSource> dataSources = getDataSource((Element) dataSourcesConfig.item(0), tempDir);
         LoadTimer timer = new LoadTimer((Element) timerConfig.item(0));
         return new LoadGenerator(id, servers, dataSources, timer, tempDir);
     }
@@ -104,12 +104,12 @@ public class LoadGeneratorFactory {
         return servers;
     }
 
-    private List<DataSource> getDataSource(Element dataSourceConfigs) throws IOException {
+    private List<DataSource> getDataSource(Element dataSourceConfigs, File tempDir) throws IOException {
         NodeList configs = dataSourceConfigs.getElementsByTagName(DATA_SOURCE);
         List<DataSource> dataSources = new ArrayList<>();
         for (int sourceIndex = 0; sourceIndex < configs.getLength(); sourceIndex += 1) {
             Element sourceElement = (Element) configs.item(sourceIndex);
-            DataSource dataSource = new DataSource(sourceElement);
+            DataSource dataSource = new DataSource(sourceElement, tempDir);
             dataSources.add(dataSource);
         }
         return dataSources;

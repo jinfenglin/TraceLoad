@@ -15,7 +15,7 @@ public class ServerStatus implements Serializable {
         WAITING, TRANSMITTING, LOADING, ERROR, UNKNOWN
     }
 
-    float progress;
+    double progress;
     boolean alive;
     boolean dataReady;
     ServerStateType serverStateType;
@@ -39,11 +39,11 @@ public class ServerStatus implements Serializable {
         return dataReady;
     }
 
-    public float getProgress() {
+    public double getProgress() {
         return progress;
     }
 
-    public void setProgress(float progress) {
+    public void setProgress(double progress) {
         this.progress = progress;
     }
 

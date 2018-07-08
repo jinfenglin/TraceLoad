@@ -25,10 +25,10 @@ public class LoadGenerator {
         this.id = id;
         this.tempDir = tempDir;
         eventSeqFiles = new ArrayList<>();
-        createEventSequences();
     }
 
     public void createEventSequences() throws IOException {
+        logger.info("Creating events ...");
         for (DataSource dataSource : dataSources) {
             EventSeqMaker eventSeqMaker = new EventSeqMaker(dataSource, loadTimer, tempDir);
             File eventSeqFile = eventSeqMaker.createEventSequenceFile();
@@ -82,8 +82,9 @@ public class LoadGenerator {
     }
 
     public void startLoad() throws InterruptedException, IOException {
-        transfer(eventSeqFiles);
-        //waitTillDataReady();
+        createEventSequences(); //TODO add command line to control
+        transfer(eventSeqFiles); //TODO BUG when no file is transferred, the cli will block on wating server side status to be ready
+        waitTillDataReady();
         loadDataToTarget();
     }
 
@@ -96,43 +97,3 @@ public class LoadGenerator {
         }
     }
 }
-
-/**
- * class ServerThread implements Runnable {
- * Server server;
- * Queue<String> commandQueue = new ArrayDeque<>();
- * List<DataSource> dataSources;
- * String currentCommand;
- * <p>
- * public ServerThread(Server server, List<DataSource> dataSources) {
- * this.server = server;
- * this.dataSources = dataSources;
- * currentCommand = "";
- * }
- * <p>
- * public void addCommand(String commandStr) {
- * commandQueue.add(commandStr);
- * }
- * <p>
- * public Queue<String> getCommandQueue() {
- * return commandQueue;
- * }
- * <p>
- * public String getCurrentTask() {
- * return currentCommand;
- * }
- *
- * @Override public void run() {
- * final int TRAN_DATA = 1;
- * while (true) {
- * if (commandQueue.size() > 0) {
- * String curCommand = commandQueue.poll();
- * switch (curCommand) {
- * case fooCommand:
- * break;
- * }
- * }
- * }
- * }
- * }
- **/

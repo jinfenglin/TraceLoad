@@ -17,15 +17,16 @@ import java.util.List;
  */
 public class LoadGeneratorTests {
     @Test
-    public void createLoadGenerator() throws IOException, SAXException, ParserConfigurationException, ConfigurationFormatException, ClassNotFoundException {
-        String xmlPath = "src/main/resources/controllerConfig.xml";
+    public void EvnetMakerTest() throws ClassNotFoundException, ParserConfigurationException, ConfigurationFormatException, SAXException, IOException {
+        String xmlPath = "src/main/resources/controllerTestConfig.xml";
         List<LoadGenerator> generatorList = LoadGeneratorFactory.getFactory().getLoadGenerators(xmlPath);
-        Assert.assertNotEquals(0, generatorList.size());
+        LoadGenerator generator = generatorList.get(0);
+        generator.createEventSequences();
     }
 
     @Test
     public void verifyOPfile() throws ClassNotFoundException, ParserConfigurationException, ConfigurationFormatException, SAXException, IOException {
-        ObjectInputStream in = new ObjectInputStream(new FileInputStream("G:\\Download\\test_1\\ds1.op"));
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream("G:\\Download\\test_1\\json-ds.op"));
         while (true) {
             Object obj = in.readObject();
             if (obj instanceof String) {
@@ -34,7 +35,7 @@ public class LoadGeneratorTests {
                     break;
             }
             LoadOperation op = (LoadOperation) obj;
-            Assert.assertEquals(op.getFileName(), "f1.txt");
         }
     }
+
 }

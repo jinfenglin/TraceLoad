@@ -93,7 +93,6 @@ public class Server {
         sendRequest(TRANS_TIME_INDEX);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
         objectOutputStream.writeObject(timeIndex);
-
     }
 
     /**
@@ -196,6 +195,7 @@ class ServerStatusMonitor implements Runnable {
                     synchronized (status) {
                         status.setAlive(lastStatus.isAlive());
                         status.setProgress(lastStatus.getProgress());
+                        status.setDataReady(lastStatus.isDataReady());
                         status.setServerStateType(lastStatus.getServerStateType());
                     }
                     while (statusQueue.size() > 0) {

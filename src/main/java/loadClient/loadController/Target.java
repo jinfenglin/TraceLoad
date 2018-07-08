@@ -1,6 +1,8 @@
 package loadClient.loadController;
 
 import Common.UserInfo;
+import loadServer.TargetAdaptors.DiskAdaptor;
+import loadServer.TargetAdaptors.TargetAdaptor;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -9,7 +11,7 @@ import java.io.Serializable;
 /**
  *
  */
-public class Target implements Serializable{
+public class Target implements Serializable {
     public enum Type {
         DISK, POSTGRES, NEO4J
     }
@@ -57,5 +59,24 @@ public class Target implements Serializable{
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public TargetAdaptor getTargetAdaptor() {
+        switch (targetType) {
+            case DISK:
+                return new DiskAdaptor(this);
+            case NEO4J:
+                break;
+            case POSTGRES:
+                break;
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return "Target{" +
+                "targetType=" + targetType +
+                '}';
     }
 }

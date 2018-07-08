@@ -8,6 +8,9 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static Common.RequestStrs.*;
@@ -21,12 +24,16 @@ public class ServerThread implements Runnable {
     Target loadTarget;
     File filePathDir;
     ServerStatus status;
+    List<File> opFiles;
+    List<Thread> loadThreadPool;
 
     public ServerThread(Socket socket, File filePathDir) {
         this.socket = socket;
         logger = Logger.getLogger(getClass().getName());
         this.filePathDir = filePathDir;
         status = new ServerStatus();
+        opFiles = new ArrayList<>();
+        loadThreadPool = new ArrayList<>();
     }
 
     private void receiveData(DataInputStream inputStream) throws IOException {
@@ -37,6 +44,7 @@ public class ServerThread implements Runnable {
         int readSize = 0;
 
         File writeFile = new File(filePathDir, fileName);
+        opFiles.add(writeFile);
         FileOutputStream fos = new FileOutputStream(writeFile);
         while (size > 0 && (readSize = inputStream.read(buff, 0, (int) Math.min(buff.length, size))) != -1) {
             fos.write(buff);
@@ -48,6 +56,16 @@ public class ServerThread implements Runnable {
     private void setTarget(InputStream inputStream) throws IOException, ClassNotFoundException {
         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
         loadTarget = (Target) objectInputStream.readObject();
+    }
+
+    private void clearLoadThraedPool() {
+        Iterator<Thread> it = loadThreadPool.iterator();
+        while (it.hasNext()) {
+            Thread loadTask = it.next();
+            if (loadTask.isInterrupted() || !loadTask.isAlive()) {
+                it.remove();
+            }
+        }
     }
 
     @Override
@@ -84,11 +102,21 @@ public class ServerThread implements Runnable {
                         synchronized (status) {
                             status.setServerStateType(ServerStatus.ServerStateType.LOADING);
                         }
+                        for (File opFile : opFiles) {
+                            Thread loadTask = new Thread(new LoadThread(opFile, loadTarget));
+                            loadThreadPool.add(loadTask);
+                            loadTask.start();
+                        }
+                        logger.info("Start loading...");
                         break;
                     case STOP_LOAD_REQ:
                         synchronized (status) {
                             status.setServerStateType(ServerStatus.ServerStateType.WAITING);
                         }
+                        for (Thread loadTask : loadThreadPool) {
+                            loadTask.interrupt();
+                        }
+                        logger.info("Load task stopped...");
                         break;
                     case CLEAN_REQ:
                         break;
@@ -102,9 +130,11 @@ public class ServerThread implements Runnable {
                             status.setDataReady(true); //clean data ready status after reload configuration on client side
                             status.setServerStateType(ServerStatus.ServerStateType.WAITING);
                         }
+                        break;
                     default:
                         logger.info(String.format("Request %s is not valid, ignore this request", request));
                 }
+                clearLoadThraedPool();
             } catch (IOException e) {
                 e.printStackTrace();
                 break;
@@ -136,7 +166,8 @@ class StatusReportThread implements Runnable {
         while (true) {
             try {
                 synchronized (status) {
-                    outputStream.writeObject(status);
+                    //logger.info(status.toString());
+                    outputStream.writeObject(new ServerStatus(status));
                 }
                 Thread.sleep(interval);
             } catch (InterruptedException e) {

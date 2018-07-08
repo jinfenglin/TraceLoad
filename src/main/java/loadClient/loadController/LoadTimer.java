@@ -3,46 +3,44 @@ package loadClient.loadController;
 
 import org.w3c.dom.Element;
 
-import java.io.File;
 import java.util.*;
 
-/**
- *
- */
 public class LoadTimer {
     final String BATCH = "batch";
     final String INTERVAL = "interval";
 
     private long batchSize;
-    private long interval;
+    private int interval;
+    private long timeBase;
+    private List<Long> batchTimes;
+    private Random random;
 
     public LoadTimer(Element timerConfigBlock) {
         String batchSizeStr = timerConfigBlock.getElementsByTagName(BATCH).item(0).getTextContent();
         String intervalStr = timerConfigBlock.getElementsByTagName(INTERVAL).item(0).getTextContent();
         batchSize = Long.valueOf(batchSizeStr);
-        interval = Long.valueOf(intervalStr);
+        interval = Integer.valueOf(intervalStr);
+        timeBase = 0;
+        batchTimes = new LinkedList<>();
+        random = new Random();
     }
 
-    public SortedMap<Long, List<String>> getTimeIndex(List<DataSource> dataSources) {
-        SortedMap<Long, List<String>> timeIndex = new TreeMap<>();
-        List<File> allFiles = new ArrayList<>();
-        for (DataSource dataSource : dataSources) {
-            allFiles.addAll(dataSource.getFiles());
+    private List<Long> genBatchOfTimes() {
+        List<Long> times = new ArrayList<>();
+        for (int i = 0; i < batchSize; i++) {
+            long time = random.nextInt(interval) + timeBase;
+            times.add(time);
         }
-        long startTime = 0;
-        for (long batchNum = 0; batchNum < allFiles.size() / batchSize; batchNum++) {
-            long batchBase = batchNum * batchSize;
-            for (long fileIndex = batchBase; fileIndex < allFiles.size(); fileIndex++) {
-                long generatedLong = startTime + (long) (Math.random() * (interval));
-                if (!timeIndex.containsKey(generatedLong)) {
-                    timeIndex.put(generatedLong, new ArrayList<>());
-                }
-                List<String> filesAtMoment = timeIndex.get(generatedLong);
-                filesAtMoment.add(allFiles.get((int) fileIndex).getName());
-                timeIndex.put(generatedLong, filesAtMoment);
-            }
-            startTime += interval;
-        }
-        return timeIndex;
+        Collections.sort(times);
+        return times;
     }
+
+    public long getNextTime() {
+        if (batchTimes.size() == 0) {
+            batchTimes = genBatchOfTimes();
+            timeBase += interval;
+        }
+        return batchTimes.remove(0);
+    }
+
 }

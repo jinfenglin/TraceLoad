@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 public class LoadOperation implements Serializable, Comparable<LoadOperation> {
     private String operationType;
-    private String fileName;
+    private String fileName; //unique id for a file
     private String content;
     private String time;
 
@@ -42,6 +42,19 @@ public class LoadOperation implements Serializable, Comparable<LoadOperation> {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    @Override
+    public String toString() {
+        boolean haveContent = false;
+        if(content!=null)
+            haveContent = true;
+        return "LoadOperation{" +
+                "operationType='" + operationType + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", haveContent='" + haveContent + '\'' +
+                ", time='" + time + '\'' +
+                '}';
     }
 
     @Override
