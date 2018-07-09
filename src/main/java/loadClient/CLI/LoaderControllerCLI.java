@@ -20,7 +20,7 @@ public class LoaderControllerCLI {
     private CommandFactory cmdFactory;
     private LoadController loadController;
 
-    public LoaderControllerCLI() throws ClassNotFoundException, ParserConfigurationException, ConfigurationFormatException, SAXException, IOException {
+    public LoaderControllerCLI() throws Exception {
         cmdFactory = CommandFactory.getFactory();
         loadController = new LoadController();
         loadController.loadConfig("src/main/resources/controllerConfig.xml");
@@ -41,8 +41,7 @@ public class LoaderControllerCLI {
         }
     }
 
-    public static void main(String[] args) throws ParseException, IOException, ClassNotFoundException,
-            ParserConfigurationException, ConfigurationFormatException, SAXException {
+    public static void main(String[] args) throws Exception {
         LoaderControllerCLI cli = new LoaderControllerCLI();
         cli.run();
     }

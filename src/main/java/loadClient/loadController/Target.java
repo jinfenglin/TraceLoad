@@ -2,11 +2,13 @@ package loadClient.loadController;
 
 import Common.UserInfo;
 import loadServer.TargetAdaptors.DiskAdaptor;
+import loadServer.TargetAdaptors.SQLAdaptor;
 import loadServer.TargetAdaptors.TargetAdaptor;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 
 /**
  *
@@ -24,7 +26,7 @@ public class Target implements Serializable {
     private UserInfo userInfo;
     private String path;
 
-    public Target(Element targetElement) {
+    public Target(Element targetElement) throws Exception {
         String typeStr = targetElement.getElementsByTagName(TYPE).item(0).getTextContent().toUpperCase();
         NodeList userInfoBlock = targetElement.getElementsByTagName(USER_INFO);
         NodeList pathBlock = targetElement.getElementsByTagName(PATH);
@@ -61,14 +63,15 @@ public class Target implements Serializable {
         this.path = path;
     }
 
-    public TargetAdaptor getTargetAdaptor() {
+
+    public TargetAdaptor getTargetAdaptor() throws Exception {
         switch (targetType) {
             case DISK:
                 return new DiskAdaptor(this);
             case NEO4J:
                 break;
             case POSTGRES:
-                break;
+                return new SQLAdaptor(this);
         }
         return null;
     }

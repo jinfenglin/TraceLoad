@@ -3,6 +3,7 @@ package loadServer;
 import Common.ServerStatus;
 import com.sun.corba.se.pept.encoding.OutputObject;
 import loadClient.loadController.Target;
+import loadServer.TargetAdaptors.TargetAdaptor;
 
 import java.io.*;
 import java.net.Socket;
@@ -102,12 +103,19 @@ public class ServerThread implements Runnable {
                         synchronized (status) {
                             status.setServerStateType(ServerStatus.ServerStateType.LOADING);
                         }
+
+                        //Reset the load target
+                        TargetAdaptor adaptor = loadTarget.getTargetAdaptor();
+                        adaptor.reset();
+                        adaptor.close();
+                        adaptor = null;
+
+                        logger.info("Start loading...");
                         for (File opFile : opFiles) {
                             Thread loadTask = new Thread(new LoadThread(opFile, loadTarget));
                             loadThreadPool.add(loadTask);
                             loadTask.start();
                         }
-                        logger.info("Start loading...");
                         break;
                     case STOP_LOAD_REQ:
                         synchronized (status) {
@@ -141,6 +149,8 @@ public class ServerThread implements Runnable {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
                 break;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         logger.info(String.format("Server thread for %s:%s is finished", socket.getInetAddress().getHostAddress(), socket.getPort()));

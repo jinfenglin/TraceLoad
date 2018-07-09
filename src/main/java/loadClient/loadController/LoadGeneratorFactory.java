@@ -39,7 +39,7 @@ public class LoadGeneratorFactory {
         return factory;
     }
 
-    public List<LoadGenerator> getLoadGenerators(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException, ConfigurationFormatException, ClassNotFoundException {
+    public List<LoadGenerator> getLoadGenerators(String xmlConfigPath) throws Exception {
         File xmlConfigFile = new File(xmlConfigPath);
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -60,7 +60,7 @@ public class LoadGeneratorFactory {
      * @param loadGeneratorNode
      * @return
      */
-    private LoadGenerator createLoadGenerator(Element loadGeneratorNode) throws ConfigurationFormatException, IOException, ClassNotFoundException {
+    private LoadGenerator createLoadGenerator(Element loadGeneratorNode) throws Exception {
         NodeList serversConfig = loadGeneratorNode.getElementsByTagName(SERVERS);
         NodeList dataSourcesConfig = loadGeneratorNode.getElementsByTagName(DATA_SOURCES);
         NodeList timerConfig = loadGeneratorNode.getElementsByTagName(TIMER);
@@ -93,7 +93,7 @@ public class LoadGeneratorFactory {
         return dir;
     }
 
-    private List<Server> getServers(Element serversConfig) throws IOException, ClassNotFoundException {
+    private List<Server> getServers(Element serversConfig) throws Exception {
         NodeList configs = serversConfig.getElementsByTagName(SERVER);
         List<Server> servers = new ArrayList<>();
         for (int serverIndex = 0; serverIndex < configs.getLength(); serverIndex += 1) {

@@ -2,28 +2,29 @@
 <LoadGenerator id="test_1">
     <temporaryDir>G:\Download\TraceLoad\client\clientTemp</temporaryDir>
     <servers>
-        <!--server>
-            <IP>127.0.0.1</IP>
-            <port>8080</port>
-            <The destination where data will be injected into>
-            <target>
-                <type>postgres</type>
-                <userInfo>
-                    <username>jlin6</username>
-                    <passwd>1234</passwd>
-                </userInfo>
-            </target>
-        </server-->
-
         <server>
             <IP>127.0.0.1</IP>
             <port>8080</port>
             <!--The destination where data will be injected into-->
             <target>
+                <type>postgres</type>
+                <path>jdbc:postgresql://localhost/traceLoad</path>
+                <userInfo>
+                    <username>jlin</username>
+                    <passwd>1992</passwd>
+                </userInfo>
+            </target>
+        </server>
+
+        <!--server>
+            <IP>127.0.0.1</IP>
+            <port>8080</port>
+            <The destination where data will be injected into>
+            <target>
                 <type>disk</type>
                 <path>G:\Download\TraceLoad\server\target</path>
             </target>
-        </server>
+        </server-->
     </servers>
 
     <dataSources>
@@ -33,7 +34,6 @@
             <format>JSON</format>
             <path>G:\Download\TraceLoad\client\source</path>
         </dataSource>
-
         <dataSource id="generated-ds">
             <format>GENERATE</format>
             <fileNum>10</fileNum>

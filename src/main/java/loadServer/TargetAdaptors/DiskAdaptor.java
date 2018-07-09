@@ -59,4 +59,16 @@ public class DiskAdaptor implements TargetAdaptor {
     public void login() {
 
     }
+
+    @Override
+    public void close() throws Exception {
+
+    }
+
+    @Override
+    public void reset() throws Exception {
+        for (File file : targetDir.listFiles()) {
+            file.delete();
+        }
+    }
 }

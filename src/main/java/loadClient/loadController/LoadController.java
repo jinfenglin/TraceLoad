@@ -24,7 +24,7 @@ public class LoadController {
      *
      * @param xmlConfigPath The relative path using the classloader's search path as root
      */
-    public void loadConfig(String xmlConfigPath) throws ParserConfigurationException, IOException, SAXException, ConfigurationFormatException, ClassNotFoundException {
+    public void loadConfig(String xmlConfigPath) throws Exception {
         for (LoadGenerator generator : generators) {
             generator.close();
         }

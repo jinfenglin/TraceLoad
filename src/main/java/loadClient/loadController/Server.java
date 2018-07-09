@@ -28,7 +28,7 @@ public class Server {
     private Socket socket;
     private ServerStatus status;
 
-    public Server(Element serverElement) throws IOException, ClassNotFoundException {
+    public Server(Element serverElement) throws Exception{
         logger = Logger.getLogger(getClass().getName());
         ip = serverElement.getElementsByTagName(IP).item(0).getTextContent();
         port = serverElement.getElementsByTagName(PORT).item(0).getTextContent();

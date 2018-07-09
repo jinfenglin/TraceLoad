@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class LoadGeneratorTests {
     @Test
-    public void EvnetMakerTest() throws ClassNotFoundException, ParserConfigurationException, ConfigurationFormatException, SAXException, IOException {
+    public void EvnetMakerTest() throws Exception {
         String xmlPath = "src/main/resources/controllerTestConfig.xml";
         List<LoadGenerator> generatorList = LoadGeneratorFactory.getFactory().getLoadGenerators(xmlPath);
         LoadGenerator generator = generatorList.get(0);

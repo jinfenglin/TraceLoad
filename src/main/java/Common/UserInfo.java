@@ -4,9 +4,11 @@ package Common;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class UserInfo {
+import java.io.Serializable;
+
+public class UserInfo implements Serializable{
     final String USERNAME = "username";
-    final String PASSED = "passed";
+    final String PASSWD = "passwd";
     private String username, passwd;
 
     public UserInfo(String username, String passwd) {
@@ -16,13 +18,13 @@ public class UserInfo {
 
     public UserInfo(Element userInfoElement) {
         NodeList useranmeBlock = userInfoElement.getElementsByTagName(USERNAME);
-        NodeList passwdBlock = userInfoElement.getElementsByTagName(USERNAME);
+        NodeList passwdBlock = userInfoElement.getElementsByTagName(PASSWD);
         if (useranmeBlock.getLength() > 0) {
-            this.username = useranmeBlock.item(0).getNodeValue();
+            this.username = useranmeBlock.item(0).getTextContent();
         }
 
         if (passwdBlock.getLength() > 0) {
-            this.passwd = passwdBlock.item(0).getNodeValue();
+            this.passwd = passwdBlock.item(0).getTextContent();
         }
     }
 
