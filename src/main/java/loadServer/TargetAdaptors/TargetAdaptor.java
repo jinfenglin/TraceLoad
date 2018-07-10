@@ -18,6 +18,8 @@ import static loadClient.loadController.EventSeqMaker.*;
  *
  */
 public interface TargetAdaptor {
+    String FILE_NAME_COL = "fileName";
+    String ARTI_CONTENT_COL = "content";
     void create(String id, String content, String dataSourceName) throws Exception;
 
     void delete(String id, String dataSourceName) throws Exception;

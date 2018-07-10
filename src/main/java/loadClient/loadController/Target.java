@@ -4,6 +4,7 @@ import Common.UserInfo;
 import loadServer.TargetAdaptors.DiskAdaptor;
 import loadServer.TargetAdaptors.SQLAdaptor;
 import loadServer.TargetAdaptors.TargetAdaptor;
+import loadServer.TargetAdaptors.graphDb.GraphDbAdaptor;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -15,7 +16,7 @@ import java.sql.SQLException;
  */
 public class Target implements Serializable {
     public enum Type {
-        DISK, POSTGRES, NEO4J
+        DISK, POSTGRES, NEO4J, ORIENTDB
     }
 
     final String TYPE = "type";
@@ -69,7 +70,9 @@ public class Target implements Serializable {
             case DISK:
                 return new DiskAdaptor(this);
             case NEO4J:
-                break;
+                return new GraphDbAdaptor(this);
+            case ORIENTDB:
+                return new GraphDbAdaptor(this);
             case POSTGRES:
                 return new SQLAdaptor(this);
         }

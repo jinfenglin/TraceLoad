@@ -39,7 +39,7 @@ public class Utils {
 
     public static String getFileNameWOPostfix(String fileName) {
         int dotIndex = fileName.lastIndexOf('.');
-        return fileName.substring(dotIndex);
+        return fileName.substring(0, dotIndex);
     }
 
 }

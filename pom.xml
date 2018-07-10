@@ -75,15 +75,19 @@
             <version>9.1-901-1.jdbc4</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.neo4j/neo4j-jdbc-driver -->
+        <!-- https://mvnrepository.com/artifact/com.steelbridgelabs.oss/neo4j-gremlin-bolt -->
         <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-jdbc-driver</artifactId>
-            <version>3.3.1</version>
+            <groupId>com.steelbridgelabs.oss</groupId>
+            <artifactId>neo4j-gremlin-bolt</artifactId>
+            <version>0.2.27</version>
         </dependency>
 
-
-
+        <!-- https://mvnrepository.com/artifact/com.orientechnologies/orientdb-gremlin -->
+        <dependency>
+            <groupId>com.orientechnologies</groupId>
+            <artifactId>orientdb-gremlin</artifactId>
+            <version>3.0.3</version>
+        </dependency>
 
     </dependencies>
 

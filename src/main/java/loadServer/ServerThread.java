@@ -108,8 +108,8 @@ public class ServerThread implements Runnable {
 
                         //Reset the load target
                         TargetAdaptor adaptor = loadTarget.getTargetAdaptor();
+                        adaptor.login();
                         adaptor.reset(opFiles.stream().map(x -> getFileNameWOPostfix(x.getName())).collect(Collectors.toList()));
-                        adaptor.close();
                         adaptor = null;
 
                         logger.info("Start loading...");

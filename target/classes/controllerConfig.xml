@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <LoadGenerator id="test_1">
-    <temporaryDir>F:\download\TraceLoad\client\clientTemp</temporaryDir>
+    <temporaryDir>G:\Download\TraceLoad\client\clientTemp</temporaryDir>
     <servers>
         <!--server>
             <IP>127.0.0.1</IP>
@@ -16,15 +16,44 @@
             </target>
         </server-->
 
+
         <server>
             <IP>127.0.0.1</IP>
             <port>8080</port>
             <!--The destination where data will be injected into-->
             <target>
-                <type>disk</type>
-                <path>F:\download\TraceLoad\server\target</path>
+                <type>orientdb</type>
+                <path>remote:localhost/TraceLoad</path>
+                <userInfo>
+                    <username>root</username>
+                    <passwd>1992</passwd>
+                </userInfo>
             </target>
         </server>
+
+        <!--server>
+            <IP>127.0.0.1</IP>
+            <port>8080</port>
+            <The destination where data will be injected into>
+            <target>
+                <type>neo4j</type>
+                <path>bolt://127.0.0.1:7687</path>
+                <userInfo>
+                    <username>jlin</username>
+                    <passwd>1992</passwd>
+                </userInfo>
+            </target>
+        </server-->
+
+        <!--server>
+            <IP>127.0.0.1</IP>
+            <port>8080</port>
+            <The destination where data will be injected into>
+            <target>
+                <type>disk</type>
+                <path>G:\Download\TraceLoad\server\target</path>
+            </target>
+        </server-->
     </servers>
 
     <dataSources>
@@ -32,7 +61,7 @@
         <dataSource id="artifact1">
             <!-- JSON/PLAIN/GENERATE-->
             <format>JSON</format>
-            <path>F:\download\TraceLoad\client\source</path>
+            <path>G:\Download\TraceLoad\client\source</path>
         </dataSource>
 
         <dataSource id="artifact2">

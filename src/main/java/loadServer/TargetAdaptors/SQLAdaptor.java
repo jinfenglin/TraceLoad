@@ -13,8 +13,6 @@ import java.util.Properties;
 public class SQLAdaptor implements TargetAdaptor {
     String url, username, password;
     Connection connection;
-    String FILE_NAME_COL = "fileName";
-    String ARTI_CONTENT_COL = "content";
 
     public SQLAdaptor(Target target) throws SQLException {
         this.url = target.getPath();
