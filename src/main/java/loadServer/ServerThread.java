@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static Common.RequestStrs.*;
+import static Common.Utils.getFileNameWOPostfix;
 
 /**
  *
@@ -106,7 +108,7 @@ public class ServerThread implements Runnable {
 
                         //Reset the load target
                         TargetAdaptor adaptor = loadTarget.getTargetAdaptor();
-                        adaptor.reset();
+                        adaptor.reset(opFiles.stream().map(x -> getFileNameWOPostfix(x.getName())).collect(Collectors.toList()));
                         adaptor.close();
                         adaptor = null;
 

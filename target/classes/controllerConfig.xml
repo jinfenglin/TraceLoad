@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <LoadGenerator id="test_1">
-    <temporaryDir>G:\Download\TraceLoad\client\clientTemp</temporaryDir>
+    <temporaryDir>F:\download\TraceLoad\client\clientTemp</temporaryDir>
     <servers>
-        <server>
+        <!--server>
             <IP>127.0.0.1</IP>
             <port>8080</port>
-            <!--The destination where data will be injected into-->
+            <The destination where data will be injected into>
             <target>
                 <type>postgres</type>
                 <path>jdbc:postgresql://localhost/traceLoad</path>
@@ -14,27 +14,28 @@
                     <passwd>1992</passwd>
                 </userInfo>
             </target>
-        </server>
+        </server-->
 
-        <!--server>
+        <server>
             <IP>127.0.0.1</IP>
             <port>8080</port>
-            <The destination where data will be injected into>
+            <!--The destination where data will be injected into-->
             <target>
                 <type>disk</type>
-                <path>G:\Download\TraceLoad\server\target</path>
+                <path>F:\download\TraceLoad\server\target</path>
             </target>
-        </server-->
+        </server>
     </servers>
 
     <dataSources>
 
-        <dataSource id="json-ds">
+        <dataSource id="artifact1">
             <!-- JSON/PLAIN/GENERATE-->
             <format>JSON</format>
-            <path>G:\Download\TraceLoad\client\source</path>
+            <path>F:\download\TraceLoad\client\source</path>
         </dataSource>
-        <dataSource id="generated-ds">
+
+        <dataSource id="artifact2">
             <format>GENERATE</format>
             <fileNum>10</fileNum>
             <totalSize>1MB</totalSize>

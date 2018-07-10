@@ -12,6 +12,8 @@ import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
+import static Common.Utils.getFileNameWOPostfix;
+
 /**
  * Load/read data on target platform
  */
@@ -34,6 +36,7 @@ public class LoadThread implements Runnable {
     @Override
     public void run() {
         try {
+            String dataSourceName = getFileNameWOPostfix(loadFile.getName());
             ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(loadFile));
             TargetAdaptor adaptor = loadTarget.getTargetAdaptor();
             adaptor.login();
@@ -54,7 +57,7 @@ public class LoadThread implements Runnable {
                 if (passedTime > Long.valueOf(op.getTime())) {
                     logger.info(String.format("Issued operation %s on time %s", op.toString(), passedTime));
                     opQueue.poll();
-                    operations.add(adaptor.executeOperation(op));
+                    operations.add(adaptor.executeOperation(op, dataSourceName));
                 }
             }
             //wait till all loading operations are finished

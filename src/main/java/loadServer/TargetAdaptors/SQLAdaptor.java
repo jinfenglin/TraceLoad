@@ -13,7 +13,6 @@ import java.util.Properties;
 public class SQLAdaptor implements TargetAdaptor {
     String url, username, password;
     Connection connection;
-    String TABLE_NAME = "artifacts";
     String FILE_NAME_COL = "fileName";
     String ARTI_CONTENT_COL = "content";
 
@@ -24,26 +23,26 @@ public class SQLAdaptor implements TargetAdaptor {
     }
 
     @Override
-    public void create(String id, String content) throws Exception {
+    public void create(String id, String content, String dataSourceName) throws Exception {
         Statement st = connection.createStatement();
-        st.executeUpdate(String.format("INSERT INTO %s VALUES ('%s', '%s')", TABLE_NAME, id, content));
+        st.executeUpdate(String.format("INSERT INTO %s VALUES ('%s', '%s')", dataSourceName, id, content));
     }
 
     @Override
-    public void delete(String id) throws Exception {
+    public void delete(String id, String dataSourceName) throws Exception {
         Statement st = connection.createStatement();
-        st.executeUpdate(String.format("DELETE FROM \"%s\" WHERE \"%s\"='%s'", TABLE_NAME, FILE_NAME_COL, id));
+        st.executeUpdate(String.format("DELETE FROM \"%s\" WHERE \"%s\"='%s'", dataSourceName, FILE_NAME_COL, id));
     }
 
     @Override
-    public void update(String id, String content) throws Exception {
+    public void update(String id, String content, String dataSourceName) throws Exception {
         Statement st = connection.createStatement();
-        st.executeUpdate(String.format("UPDATE \"%s\" SET \"%s\"='%s' WHERE \"%s\"='%s'", TABLE_NAME, ARTI_CONTENT_COL, content, FILE_NAME_COL, id));
+        st.executeUpdate(String.format("UPDATE \"%s\" SET \"%s\"='%s' WHERE \"%s\"='%s'", dataSourceName, ARTI_CONTENT_COL, content, FILE_NAME_COL, id));
     }
 
     @Override
-    public List<String> read(String id) throws Exception {
-        String query = String.format("SELECT \"%s\" FROM \"%s\" WHERE \"%s\" = '%s'", ARTI_CONTENT_COL, TABLE_NAME, FILE_NAME_COL, id);
+    public List<String> read(String id, String dataSourceName) throws Exception {
+        String query = String.format("SELECT \"%s\" FROM \"%s\" WHERE \"%s\" = '%s'", ARTI_CONTENT_COL, dataSourceName, FILE_NAME_COL, id);
         List<String> res = new ArrayList<>();
 
         Statement st = connection.createStatement();
@@ -60,7 +59,6 @@ public class SQLAdaptor implements TargetAdaptor {
         Properties props = new Properties();
         props.setProperty("user", username);
         props.setProperty("password", password);
-        //props.setProperty("ssl", "true");
         connection = DriverManager.getConnection(url, props);
     }
 
@@ -69,21 +67,23 @@ public class SQLAdaptor implements TargetAdaptor {
         connection.close();
     }
 
-    public void dropTable() throws Exception {
-        String query = String.format("DROP TABLE IF EXISTS \"%s\" ", TABLE_NAME);
+    public void dropTable(String tableName) throws Exception {
+        String query = String.format("DROP TABLE IF EXISTS \"%s\" ", tableName);
         Statement st = connection.createStatement();
         st.executeUpdate(query);
     }
 
-    public void createTable() throws Exception {
-        String query = String.format("CREATE TABLE \"%s\" ( \"%s\" text, \"%s\" text, PRIMARY KEY ( \"%s\" ))", TABLE_NAME, FILE_NAME_COL, ARTI_CONTENT_COL, FILE_NAME_COL);
+    public void createTable(String tableName) throws Exception {
+        String query = String.format("CREATE TABLE \"%s\" ( \"%s\" text, \"%s\" text, PRIMARY KEY ( \"%s\" ))", tableName, FILE_NAME_COL, ARTI_CONTENT_COL, FILE_NAME_COL);
         Statement st = connection.createStatement();
         st.executeUpdate(query);
     }
 
-    public void reset() throws Exception {
+    public void reset(List<String> dataSourceNames) throws Exception {
         login();
-        dropTable();
-        createTable();
+        for (String tableName : dataSourceNames) {
+            dropTable(tableName);
+            createTable(tableName);
+        }
     }
 }

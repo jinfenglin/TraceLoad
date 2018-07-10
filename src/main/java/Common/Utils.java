@@ -37,4 +37,9 @@ public class Utils {
         return (long) (num * (Math.pow(1024.0, powNum)));
     }
 
+    public static String getFileNameWOPostfix(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        return fileName.substring(dotIndex);
+    }
+
 }

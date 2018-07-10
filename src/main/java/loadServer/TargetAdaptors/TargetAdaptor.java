@@ -18,15 +18,15 @@ import static loadClient.loadController.EventSeqMaker.*;
  *
  */
 public interface TargetAdaptor {
-    void create(String id, String content) throws IOException, Exception;
+    void create(String id, String content, String dataSourceName) throws Exception;
 
-    void delete(String id) throws Exception;
+    void delete(String id, String dataSourceName) throws Exception;
 
-    void update(String id, String content) throws IOException, Exception;
+    void update(String id, String content, String dataSourceName) throws Exception;
 
-    List<String> read(String id) throws IOException, Exception;
+    List<String> read(String id, String dataSourceName) throws Exception;
 
-    default Thread executeOperation(LoadOperation op) {
+    default Thread executeOperation(LoadOperation op, String dataSourceNaem) {
         Thread opThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -34,16 +34,16 @@ public interface TargetAdaptor {
                     //Logger.getLogger(this.getClass().getName()).info(String.format("Executing %s", op.toString()));
                     switch (op.getOperationType()) {
                         case OP_CREATE:
-                            create(op.getFileName(), op.getContent());
+                            create(op.getFileName(), op.getContent(), dataSourceNaem);
                             break;
                         case OP_DELETE:
-                            delete(op.getFileName());
+                            delete(op.getFileName(), dataSourceNaem);
                             break;
                         case OP_READ:
-                            read(op.getFileName());
+                            read(op.getFileName(), dataSourceNaem);
                             break;
                         case OP_UPDAET:
-                            update(op.getFileName(), op.getContent());
+                            update(op.getFileName(), op.getContent(), dataSourceNaem);
                             break;
                     }
                 } catch (Exception e) {
@@ -60,6 +60,13 @@ public interface TargetAdaptor {
 
     void close() throws Exception;
 
-    void reset() throws Exception;
+    /**
+     * Each data source represent one type of artifacts. In the reset step, adaptor should
+     * construct the tables/directories for further processing.
+     *
+     * @param dataSourceNames
+     * @throws Exception
+     */
+    void reset(List<String> dataSourceNames) throws Exception;
 
 }
